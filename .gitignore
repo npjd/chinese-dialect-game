@@ -1,0 +1,37 @@
+# Python virtual environments
+.venv*/
+venv*/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Large datasets & corpora
+KeSpeech/
+bili_gemini_test_out/
+bili_corpus_out/
+
+# Logs
+logs/
+
+# Node
+node_modules/
+.next/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Next.js local env (has secrets)
+next-ui/.env.local

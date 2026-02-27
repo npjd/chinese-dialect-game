@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chinese Dialect Geo Guess</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
+        <h1>Chinese Dialect Geo Guess</h1>
+        <p>Listen to the clip, click where you think the dialect is from, then score by distance.</p>
+      </header>
+
+      <section class="panel stats">
+        <div><strong>Round:</strong> <span id="roundLabel">0 / 0</span></div>
+        <div><strong>Total Score:</strong> <span id="totalScoreLabel">0</span></div>
+        <div><strong>Last Distance:</strong> <span id="distanceLabel">-</span></div>
+        <div><strong>Last Round Score:</strong> <span id="roundScoreLabel">-</span></div>
+      </section>
+
+      <section class="panel clip">
+        <audio id="clipAudio" controls preload="metadata"></audio>
+        <div class="meta">
+          <div><strong>Hint (city tag):</strong> <span id="cityHint">-</span></div>
+          <div><strong>Transcript:</strong> <span id="transcriptText">-</span></div>
+          <div><strong>English:</strong> <span id="translationText">-</span></div>
+          <div><strong>Description:</strong> <span id="descriptionText">-</span></div>
+        </div>
+      </section>
+
+      <section class="panel map-panel">
+        <div id="map"></div>
+      </section>
+
+      <section class="panel controls">
+        <button id="submitGuessBtn" disabled>Submit Guess</button>
+        <button id="nextRoundBtn" disabled>Next Round</button>
+        <button id="newGameBtn">New Game</button>
+      </section>
+
+      <section id="status" class="status"></section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./config.js"></script>
+    <script src="./main.js"></script>
+  </body>
+</html>

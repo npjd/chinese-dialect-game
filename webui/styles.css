@@ -1,0 +1,111 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --panel: #151c34;
+  --text: #e8eeff;
+  --muted: #acb9e7;
+  --accent: #73a4ff;
+  --good: #55d187;
+  --bad: #ff7b7b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #131b38, var(--bg));
+  color: var(--text);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.top h1 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.top p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.panel {
+  background: color-mix(in srgb, var(--panel) 90%, black);
+  border: 1px solid #273257;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.clip audio {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.meta {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+#map {
+  height: 520px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: 1px solid #4566b5;
+  background: #1a2a57;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover:enabled {
+  background: #253c79;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.status {
+  color: var(--muted);
+  min-height: 1.3rem;
+}
+
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  #map {
+    height: 420px;
+  }
+}
