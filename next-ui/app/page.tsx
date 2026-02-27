@@ -28,6 +28,8 @@ type Clip = {
   id: string;
   storage_path: string;
   clip_path?: string;
+  clip_start?: string;
+  clip_end?: string;
   target_location?: string;
   city?: string;
   transcript?: string;
@@ -60,6 +62,18 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+function parseTimestamp(ts: string): number {
+  const parts = ts.split(":").map(Number);
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+}
+
+function clipDurationSeconds(clip: { clip_start?: string; clip_end?: string }): number {
+  if (!clip.clip_start || !clip.clip_end) return Infinity;
+  return parseTimestamp(clip.clip_end) - parseTimestamp(clip.clip_start);
+}
+
 function scoreFromDistance(distanceKm: number) {
   const maxPoints = 5000;
   const scoreDecayKm = 1200;
@@ -87,8 +101,13 @@ export default function HomePage() {
   const [clickNotice, setClickNotice] = useState("");
   const [audioCollapsed, setAudioCollapsed] = useState(false);
 
+  const MIN_CLIP_SECONDS = 3;
   const playableClips = useMemo(
-    () => clips.filter((clip) => typeof clip.latitude === "number" && typeof clip.longitude === "number"),
+    () => clips.filter((clip) =>
+      typeof clip.latitude === "number" &&
+      typeof clip.longitude === "number" &&
+      clipDurationSeconds(clip) >= MIN_CLIP_SECONDS
+    ),
     [clips]
   );
 
@@ -386,7 +405,7 @@ export default function HomePage() {
 
         {/* ── Top-left: Score ── */}
         <FloatingPanel glass className="bd-hud bd-hud-top-left">
-          <div className="bd-hud-score">{totalScore}</div>
+          <div key={totalScore} className="bd-hud-score bd-hud-score-pop">{totalScore}</div>
           <div className="bd-hud-score-label">总分 Score</div>
         </FloatingPanel>
 
@@ -465,6 +484,7 @@ export default function HomePage() {
               size="lg"
               onClick={submitGuess}
               disabled={!guessLatLng}
+              className={guessLatLng ? "bd-btn-pulse" : ""}
               icon={<IconTarget size={18} color="#fff" />}
             >
               提交猜测 Submit
