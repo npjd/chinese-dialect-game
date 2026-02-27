@@ -560,19 +560,21 @@ body {
   color: var(--bd-gray-500);
 }
 
-/* ── Map ───────────────────────────────────── */
+/* ── Fullscreen Game Layout ────────────────── */
 
-.bd-map-wrapper {
-  position: relative;
-  border-radius: var(--bd-radius-2);
+.bd-game-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
-  box-shadow: var(--bd-shadow-1);
-  background: var(--bd-gray-100);
 }
 
-.bd-map {
+.bd-game-map {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 500px;
+  height: 100%;
+  z-index: 1;
 }
 
 .bd-map-loading {
@@ -605,20 +607,207 @@ body {
 
 .bd-map-notice {
   position: absolute;
-  bottom: 12px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(31, 32, 36, 0.85);
+  background: rgba(31, 32, 36, 0.88);
   color: var(--bd-white);
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: var(--bd-radius-full);
   font-size: 13px;
-  z-index: 600;
+  z-index: 900;
   white-space: nowrap;
   backdrop-filter: blur(8px);
+}
+
+/* ── HUD (Head-Up Display) Panels ──────────── */
+
+.bd-hud {
+  position: absolute;
+  z-index: 800;
+  pointer-events: auto;
+}
+
+.bd-hud-top-left {
+  top: 16px;
+  left: 16px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.bd-hud-top-right {
+  top: 16px;
+  right: 16px;
+  min-width: 90px;
+  text-align: center;
+}
+
+.bd-hud-bottom-left {
+  bottom: 16px;
+  left: 16px;
+  max-width: 360px;
+  width: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bd-hud-bottom-center {
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.bd-hud-collapsed {
+  max-width: 48px;
+  width: auto;
+  min-width: 0;
+  padding: 8px;
+}
+
+/* ── HUD Score ─────────────────────────────── */
+
+.bd-hud-score {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--bd-blue-600);
+  line-height: 1.1;
+}
+
+.bd-hud-score-label {
+  font-size: 11px;
+  color: var(--bd-gray-500);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── HUD Round ─────────────────────────────── */
+
+.bd-hud-round {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--bd-gray-800);
+  line-height: 1.2;
+}
+
+.bd-hud-round-sep {
+  color: var(--bd-gray-400);
+  font-weight: 400;
+  margin: 0 2px;
+}
+
+/* ── HUD Audio Panel ───────────────────────── */
+
+.bd-hud-collapse-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bd-gray-100);
+  color: var(--bd-gray-600);
+  cursor: pointer;
+  transition: var(--bd-transition);
+  z-index: 1;
+}
+
+.bd-hud-collapse-btn:hover {
+  background: var(--bd-gray-200);
+}
+
+.bd-hud-collapsed .bd-hud-collapse-btn {
+  position: static;
+  margin: 0 auto;
+}
+
+.bd-hud-audio-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 32px;
+}
+
+.bd-hud-audio-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bd-gray-700);
+}
+
+.bd-hud-audio-player {
+  width: 100%;
+  height: 36px;
+  border-radius: var(--bd-radius-full);
+  outline: none;
+}
+
+.bd-hud-audio-player::-webkit-media-controls-panel {
+  border-radius: var(--bd-radius-full);
+}
+
+.bd-hud-hint {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(51, 133, 255, 0.08);
+  border-radius: var(--bd-radius-1);
+  font-size: 13px;
+  color: var(--bd-gray-700);
+  border-left: 3px solid var(--bd-blue-500);
+}
+
+.bd-hud-hint-tag {
+  font-weight: 700;
+  color: var(--bd-blue-600);
+  font-size: 11px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ── HUD Result (post-submit) ──────────────── */
+
+.bd-hud-result {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--bd-gray-200);
+}
+
+.bd-hud-result-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--bd-gray-700);
+}
+
+.bd-hud-result-desc {
+  color: var(--bd-gray-500);
+  font-size: 12px;
+  padding-left: 20px;
+}
+
+.bd-hud-result-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bd-hud-result-dist {
+  font-size: 12px;
+  color: var(--bd-gray-500);
 }
 
 /* ── Spinner ───────────────────────────────── */
@@ -735,17 +924,6 @@ body {
   flex: 1;
 }
 
-/* ── Game Stats Row ────────────────────────── */
-
-.bd-stats-row {
-  display: flex;
-  gap: 12px;
-}
-
-.bd-stats-row > * {
-  flex: 1;
-}
-
 /* ── Controls ──────────────────────────────── */
 
 .bd-controls {
@@ -797,38 +975,59 @@ body {
     gap: 12px;
   }
 
-  .bd-map {
-    height: 350px;
-  }
-
   .bd-city-grid {
     max-height: 200px;
-  }
-
-  .bd-stats-row {
-    gap: 8px;
   }
 
   .bd-setup-title {
     font-size: 22px;
   }
 
-  .bd-controls {
-    flex-direction: column;
+  .bd-hud-bottom-left {
+    max-width: calc(100% - 32px);
+    bottom: 72px;
   }
 
-  .bd-controls .bd-btn {
+  .bd-hud-bottom-center {
+    bottom: 12px;
+    width: calc(100% - 32px);
+    left: 16px;
+    transform: none;
+  }
+
+  .bd-hud-bottom-center .bd-btn {
     width: 100%;
+  }
+
+  .bd-hud-top-left {
+    top: 12px;
+    left: 12px;
+  }
+
+  .bd-hud-top-right {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (min-width: 641px) {
+  .bd-hud-bottom-left {
+    bottom: 16px;
+    max-width: 340px;
+  }
+
+  .bd-hud-bottom-center {
+    bottom: 24px;
   }
 }
 
 /* ── Leaflet overrides ─────────────────────── */
 
-.bd-map-wrapper .leaflet-container {
+.bd-game-fullscreen .leaflet-container {
   font-family: var(--bd-font);
 }
 
-.bd-map-wrapper .leaflet-control-zoom a {
+.bd-game-fullscreen .leaflet-control-zoom a {
   border-radius: var(--bd-radius-1) !important;
   background: var(--bd-white) !important;
   color: var(--bd-gray-700) !important;
@@ -840,15 +1039,17 @@ body {
   font-size: 18px !important;
 }
 
-.bd-map-wrapper .leaflet-control-zoom {
+.bd-game-fullscreen .leaflet-control-zoom {
   border: none !important;
   box-shadow: none !important;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-bottom: 16px !important;
+  margin-right: 16px !important;
 }
 
-.bd-map-wrapper .leaflet-control-attribution {
+.bd-game-fullscreen .leaflet-control-attribution {
   background: rgba(255, 255, 255, 0.7) !important;
   backdrop-filter: blur(4px) !important;
   font-size: 10px !important;

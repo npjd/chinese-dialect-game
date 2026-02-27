@@ -13,13 +13,11 @@ import {
   Card,
   Button,
   Badge,
-  Stat,
   ProgressBar,
-  AudioCard,
-  MapContainer,
   ScoreDisplay,
   CitySelector,
   Divider,
+  FloatingPanel,
   IconLocation,
   IconTarget,
   IconRefresh,
@@ -87,6 +85,7 @@ export default function HomePage() {
   const [mapReady, setMapReady] = useState(false);
   const [mapInitError, setMapInitError] = useState("");
   const [clickNotice, setClickNotice] = useState("");
+  const [audioCollapsed, setAudioCollapsed] = useState(false);
 
   const playableClips = useMemo(
     () => clips.filter((clip) => typeof clip.latitude === "number" && typeof clip.longitude === "number"),
@@ -296,7 +295,9 @@ export default function HomePage() {
           maxBounds: bounds,
           maxBoundsViscosity: 1,
           zoomSnap: 0.25,
+          zoomControl: false,
         });
+        L.control.zoom({ position: "bottomright" }).addTo(map);
         map.fitBounds(bounds);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 18,
@@ -370,19 +371,136 @@ export default function HomePage() {
 
   /* ── Render ────────────────────────────────── */
 
+  if (gameState === "playing" && currentRound) {
+    return (
+      <div className="bd-game-fullscreen">
+        {/* Full-screen map background */}
+        <div ref={mapContainerRef} className="bd-game-map" />
+        {!mapReady && !mapInitError && (
+          <div className="bd-map-loading">
+            <div className="bd-spinner" />
+            <span>地图加载中...</span>
+          </div>
+        )}
+        {mapInitError && <div className="bd-map-error">{mapInitError}</div>}
+
+        {/* ── Top-left: Score ── */}
+        <FloatingPanel glass className="bd-hud bd-hud-top-left">
+          <div className="bd-hud-score">{totalScore}</div>
+          <div className="bd-hud-score-label">总分 Score</div>
+        </FloatingPanel>
+
+        {/* ── Top-right: Round progress ── */}
+        <FloatingPanel glass className="bd-hud bd-hud-top-right">
+          <div className="bd-hud-round">
+            {currentRoundIndex + 1}<span className="bd-hud-round-sep">/</span>{rounds.length}
+          </div>
+          <ProgressBar current={currentRoundIndex + 1} total={rounds.length} />
+        </FloatingPanel>
+
+        {/* ── Bottom-left: Audio + hint panel ── */}
+        <FloatingPanel glass className={`bd-hud bd-hud-bottom-left ${audioCollapsed ? "bd-hud-collapsed" : ""}`}>
+          <button
+            className="bd-hud-collapse-btn"
+            onClick={() => setAudioCollapsed((v) => !v)}
+            type="button"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              {audioCollapsed
+                ? <polyline points="6,9 12,15 18,9" />
+                : <polyline points="18,15 12,9 6,15" />
+              }
+            </svg>
+          </button>
+          {!audioCollapsed && (
+            <>
+              <div className="bd-hud-audio-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={tokens.blue500} stroke="none">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke={tokens.blue500} strokeWidth="2" />
+                </svg>
+                <span className="bd-hud-audio-label">方言音频</span>
+              </div>
+              <audio
+                controls
+                preload="metadata"
+                src={getPublicStorageUrl(currentRound.storage_path || currentRound.clip_path || "")}
+                className="bd-hud-audio-player"
+              />
+              {currentRound.transcript && (
+                <div className="bd-hud-hint">
+                  <span className="bd-hud-hint-tag">提示</span>
+                  <span>{currentRound.transcript}</span>
+                </div>
+              )}
+              {roundResult && (
+                <div className="bd-hud-result">
+                  <div className="bd-hud-result-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.green500} strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span>{currentRound.city || currentRound.target_location || "Unknown"}</span>
+                  </div>
+                  {currentRound.description && (
+                    <div className="bd-hud-result-row bd-hud-result-desc">{currentRound.description}</div>
+                  )}
+                  <div className="bd-hud-result-score">
+                    <Badge variant={roundResult.roundScore >= 3000 ? "green" : roundResult.roundScore >= 1000 ? "orange" : "red"}>
+                      +{roundResult.roundScore} 分
+                    </Badge>
+                    <span className="bd-hud-result-dist">{roundResult.distanceKm.toFixed(1)} km</span>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </FloatingPanel>
+
+        {/* ── Bottom-center: Action buttons ── */}
+        <div className="bd-hud bd-hud-bottom-center">
+          {!roundResult ? (
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={submitGuess}
+              disabled={!guessLatLng}
+              icon={<IconTarget size={18} color="#fff" />}
+            >
+              提交猜测 Submit
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={nextRound}
+            >
+              {currentRoundIndex === rounds.length - 1 ? "查看结果 Finish" : "下一轮 Next →"}
+            </Button>
+          )}
+        </div>
+
+        {/* ── Click-outside-China notice ── */}
+        {clickNotice && (
+          <div className="bd-map-notice">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            {clickNotice}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <AppShell>
       <TopBar
         title="方言地图"
         subtitle="Dialect Map Game"
         left={<IconLocation size={22} />}
-        right={
-          gameState === "playing" ? (
-            <Badge variant="blue">
-              第 {currentRoundIndex + 1} / {rounds.length} 轮
-            </Badge>
-          ) : undefined
-        }
       />
 
       {/* ── Loading / Error ── */}
@@ -439,63 +557,6 @@ export default function HomePage() {
               </Button>
             </div>
           </Card>
-        </div>
-      )}
-
-      {/* ── Playing Screen ── */}
-      {gameState === "playing" && currentRound && (
-        <div className="bd-page-content">
-          {/* Stats row */}
-          <div className="bd-stats-row">
-            <Card variant="blue">
-              <Stat label="总分 Score" value={totalScore} />
-            </Card>
-            <Card variant="default">
-              <Stat label="进度 Progress" value={`${currentRoundIndex + 1} / ${rounds.length}`} />
-              <ProgressBar current={currentRoundIndex + 1} total={rounds.length} />
-            </Card>
-          </div>
-
-          {/* Audio */}
-          <AudioCard
-            src={getPublicStorageUrl(currentRound.storage_path || currentRound.clip_path || "")}
-            transcript={currentRound.transcript || "-"}
-            city={roundResult ? (currentRound.city || currentRound.target_location || "Unknown") : undefined}
-            description={roundResult ? (currentRound.description || undefined) : undefined}
-            showDetails={Boolean(roundResult)}
-            result={roundResult}
-          />
-
-          {/* Map */}
-          <MapContainer
-            mapRef={mapContainerRef}
-            ready={mapReady}
-            error={mapInitError}
-            notice={clickNotice}
-          />
-
-          {/* Controls */}
-          <div className="bd-controls">
-            <Button
-              variant="primary"
-              size="lg"
-              fullWidth
-              onClick={submitGuess}
-              disabled={!guessLatLng || Boolean(roundResult)}
-              icon={<IconTarget size={18} color="#fff" />}
-            >
-              提交猜测 Submit Guess
-            </Button>
-            <Button
-              variant={roundResult ? "primary" : "outline"}
-              size="lg"
-              fullWidth
-              onClick={nextRound}
-              disabled={!roundResult}
-            >
-              {currentRoundIndex === rounds.length - 1 ? "查看结果 Finish" : "下一轮 Next"}
-            </Button>
-          </div>
         </div>
       )}
 
